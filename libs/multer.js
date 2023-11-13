@@ -15,8 +15,6 @@ const generateStorage = (destination) => {
     })
 }
 
-
-
 module.exports = {
     image: multer({
         storage: generateStorage('./media/images'),

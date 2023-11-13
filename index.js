@@ -9,9 +9,8 @@ const port = process.env.PORT || 3000
 app.use('/image', express.static('public/images'))
 app.use('/file', express.static('public/files'))
 
-app.use('/', router)
+app.use('/API/v1/', router)
 
 app.listen(port, () => {
     console.log(`server running on port : ${port}`)
-}
-)
+})

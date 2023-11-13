@@ -1,11 +1,32 @@
 const qr = require('node-qr-image')
+const { file } = require('../libs/multer')
 
-function MediaImages(req, res) {
+//for single image
+function MediaImage(req, res) {
     const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 
     return res.status(200).json({
         data: { image_url: imageUrl },
-        message: 'succes',
+        message: 'success',
+        status: 200,
+        error: null,
+    })
+}
+
+//for multiple image
+function MediaImages(req, res) {
+    let respArr = []
+
+    for (let i = 0; req.files.length > i; i++) {
+        const fileimage = req.files[i].filename
+        const imageUrl = `${req.protocol}://${req.get('host')}/images/${fileimage}`
+        respArr.push(imageUrl)
+    }
+
+
+    return res.status(200).json({
+        data: { image_url: respArr },
+        message: 'upload success',
         status: 200,
         error: null,
     })
@@ -16,7 +37,7 @@ function MediaVideos(req, res) {
 
     return res.status(200).json({
         data: { video_url: videoUrl },
-        message: 'succes',
+        message: 'upload success',
         status: 200,
         error: null,
     })
@@ -27,10 +48,35 @@ function MediaFiles(req, res) {
 
     return res.status(200).json({
         data: { file_url: fileUrl },
-        message: 'succes',
+        message: 'upload success',
         status: 200,
         error: null,
     })
+}
+
+async function ImageKitUpload(req, res) {
+    try {
+        const fileString = req.file.buffer.toString('base64')
+
+        const uploadImage = await imagekit.upload({
+            fileName: req.file.originalname,
+            file: fileString
+        })
+
+        res.status(200).json({
+            data: uploadImage,
+            message: 'upload success',
+            status: 200,
+            error: null
+        })
+    } catch (error) {
+        res.status(500).json({
+            data: null,
+            message: 'internal server error',
+            status: 500,
+            error: error.message
+        })
+    }
 }
 
 function GenerateQr(req, res) {
@@ -42,7 +88,7 @@ function GenerateQr(req, res) {
 
         return res.status(200).json({
             data: pngString,
-            message: 'succes',
+            message: 'generate success',
             status: 200,
             error: null,
         })
@@ -62,7 +108,9 @@ function GenerateQr(req, res) {
 
 module.exports = {
     MediaImages,
+    MediaImage,
     MediaVideos,
     MediaFiles,
+    ImageKitUpload,
     GenerateQr
 }
